@@ -1,7 +1,6 @@
 module Main where
 
 import qualified Data.HashMap.Strict as HM
--- import Data.Monoid (mempty)
 import System.Directory (getCurrentDirectory)
 import System.FilePath ((</>))
 --
@@ -89,7 +88,7 @@ extraDep = []
 main :: IO ()
 main = do
   cwd <- getCurrentDirectory
-  let tmpldir = "./template"
+  let tmpldir = "../template"
   let fficfg = FFICXXConfig {
                  fficxxconfig_workingDir     = cwd </> "tmp" </> "working"
                , fficxxconfig_installBaseDir = cwd </> "hgdal"
@@ -104,7 +103,7 @@ main = do
                , sbcTemplates  = templates
                , sbcExtraLibs  = extraLib
                , sbcExtraDeps  = extraDep
-               , sbcStaticFiles = [] -- ["CHANGES","Config.hs","LICENSE","Setup.lhs"]
+               , sbcStaticFiles = ["LICENSE"]
                }
 
   simpleBuilder fficfg sbcfg
