@@ -35,6 +35,13 @@ oFTString = 4
 oFTInteger64 :: CUInt
 oFTInteger64 = 12
 
+
+wkbPolygon :: CUInt
+wkbPolygon = 3
+
+wkbMultiPolygon :: CUInt
+wkbMultiPolygon = 6
+
 -- end of enum
 
 
@@ -84,4 +91,12 @@ main = do
                pure (show v)
              | otherwise         -> pure "otherwise"
         putStrLn $ str1 ++ " = " ++ str2
+      poGeometry <- oGRFeature_GetGeometryRef poFeature
+      t' <- getGeometryType poGeometry
+      str3 <-
+        if | t' == wkbPolygon      -> pure "wkbPolygon"
+           | t' == wkbMultiPolygon -> pure "wkbMultiPolygon"
+           | otherwise             -> pure "otherwise"
+
+      print str3
   pure ()

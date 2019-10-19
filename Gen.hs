@@ -102,6 +102,7 @@ oGRFeature =
   , NonVirtual int_ "GetFieldAsInteger" [ int "i" ] Nothing
   , NonVirtual int_ {- GIntBig = Int64 -} "GetFieldAsInteger64" [ int "i" ] Nothing
   , NonVirtual cstring_ "GetFieldAsString" [ int "i" ] Nothing
+  , NonVirtual (cppclass_ oGRGeometry) "GetGeometryRef" [] Nothing
   ]
 
 oGRFeatureDefn :: Class
@@ -117,6 +118,12 @@ oGRFieldDefn =
   gdalclass "OGRFieldDefn" [ deletable ]
   [ NonVirtual cstring_ "GetNameRef" [] Nothing
   , NonVirtual uint_ {- OGRFieldType = enum -} "GetType" [] Nothing
+  ]
+
+oGRGeometry :: Class
+oGRGeometry =
+  gdalclass "OGRGeometry" [ deletable ]
+  [ Virtual uint_ {- OGRwkbGeometryType -} "getGeometryType" [] Nothing
   ]
 
 oGRLayer :: Class
@@ -136,6 +143,7 @@ classes =
   , oGRFeature
   , oGRFeatureDefn
   , oGRFieldDefn
+  , oGRGeometry
   , oGRLayer
   ]
 
@@ -160,6 +168,7 @@ headers =
   , modImports "OGRFeature"      [] ["ogr_feature.h"]
   , modImports "OGRFeatureDefn"  [] ["ogr_feature.h"]
   , modImports "OGRFieldDefn"    [] ["ogr_feature.h"]
+  , modImports "OGRGeometry"     [] ["ogr_geometry.h"]
   , modImports "OGRLayer"        [] ["ogrsf_frmts.h"]
   ]
 
