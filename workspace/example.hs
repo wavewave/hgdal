@@ -3,9 +3,10 @@
 
 module Main where
 
-import Control.Monad.Loops
+import Control.Monad.Loops ( whileJust_ )
+import Data.Foldable    ( for_ )
 import Data.String      ( IsString(fromString) )
-import Foreign.C.String ( CString, newCString )
+import Foreign.C.String ( CString, newCString, peekCAString )
 import Foreign.C.Types  ( CUInt )
 import Foreign.Ptr      ( nullPtr )
 import System.IO.Unsafe ( unsafePerformIO )
@@ -44,6 +45,10 @@ main = do
                    else pure (Just p)
              ) $
     \poFeature -> do
-      n3 <- oGRFeature_GetFieldCount poFeature
-      print n3
+      putStrLn "------------------------"
+      for_ [0..n3-1] $ \i -> do
+        poFieldDfn <- getFieldDefn poFDefn i
+        cstr <- oGRFieldDefn_GetNameRef poFieldDfn
+        str <- peekCAString cstr
+        putStrLn $ "GetNameRef poFieldDfn = " ++ str
   pure ()

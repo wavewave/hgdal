@@ -7,7 +7,9 @@ import System.Directory (getCurrentDirectory)
 import System.FilePath ((</>))
 --
 import FFICXX.Generate.Builder        ( simpleBuilder )
-import FFICXX.Generate.Code.Primitive ( charpp, cppclass_, cstring
+import FFICXX.Generate.Code.Primitive ( charpp
+                                      , cppclass_
+                                      , cstring, cstring_
                                       , int, int_
                                       , uint
                                       , void_
@@ -103,9 +105,15 @@ oGRFeatureDefn :: Class
 oGRFeatureDefn =
   gdalclass "OGRFeatureDefn" [ deletable ]
   [ Virtual int_ "GetFieldCount" [] Nothing
+  , Virtual (cppclass_ oGRFieldDefn) "GetFieldDefn" [ int "i" ] Nothing
   , Virtual int_ "GetGeomFieldCount" [] Nothing
   ]
 
+oGRFieldDefn :: Class
+oGRFieldDefn =
+  gdalclass "OGRFieldDefn" [ deletable ]
+  [ NonVirtual cstring_ "GetNameRef" [] Nothing
+  ]
 
 oGRLayer :: Class
 oGRLayer =
@@ -123,6 +131,7 @@ classes =
   , gDALMajorObject
   , oGRFeature
   , oGRFeatureDefn
+  , oGRFieldDefn
   , oGRLayer
   ]
 
@@ -146,6 +155,7 @@ headers =
   , modImports "GDALDataset"     [] ["gdal_priv.h"]
   , modImports "OGRFeature"      [] ["ogr_feature.h"]
   , modImports "OGRFeatureDefn"  [] ["ogr_feature.h"]
+  , modImports "OGRFieldDefn"    [] ["ogr_feature.h"]
   , modImports "OGRLayer"        [] ["ogrsf_frmts.h"]
   ]
 
