@@ -11,7 +11,7 @@ import FFICXX.Generate.Code.Primitive ( charpp
                                       , cppclass_
                                       , cstring, cstring_
                                       , int, int_
-                                      , uint
+                                      , uint, uint_
                                       , void_
                                       )
 import FFICXX.Generate.Config         ( FFICXXConfig(..)
@@ -99,6 +99,9 @@ oGRFeature :: Class
 oGRFeature =
   gdalclass "OGRFeature" [ deletable ]
   [ NonVirtual int_ "GetFieldCount" [] Nothing
+  , NonVirtual int_ "GetFieldAsInteger" [ int "i" ] Nothing
+  , NonVirtual int_ {- GIntBig = Int64 -} "GetFieldAsInteger64" [ int "i" ] Nothing
+  , NonVirtual cstring_ "GetFieldAsString" [ int "i" ] Nothing
   ]
 
 oGRFeatureDefn :: Class
@@ -113,6 +116,7 @@ oGRFieldDefn :: Class
 oGRFieldDefn =
   gdalclass "OGRFieldDefn" [ deletable ]
   [ NonVirtual cstring_ "GetNameRef" [] Nothing
+  , NonVirtual uint_ {- OGRFieldType = enum -} "GetType" [] Nothing
   ]
 
 oGRLayer :: Class

@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# LANGUAGE MultiWayIf        #-}
 {-# LANGUAGE OverloadedStrings #-}
 
 module Main where
@@ -16,8 +17,26 @@ import GDAL
 instance IsString CString where
   fromString s = unsafePerformIO $ newCString s
 
+
+-- some enum definition
+
 gDAL_OF_VECTOR :: CUInt
 gDAL_OF_VECTOR = 4
+
+oFTInteger :: CUInt
+oFTInteger = 0
+
+oFTIntegerList :: CUInt
+oFTIntegerList = 1
+
+oFTString :: CUInt
+oFTString = 4
+
+oFTInteger64 :: CUInt
+oFTInteger64 = 12
+
+-- end of enum
+
 
 main :: IO ()
 main = do
@@ -49,6 +68,20 @@ main = do
       for_ [0..n3-1] $ \i -> do
         poFieldDfn <- getFieldDefn poFDefn i
         cstr <- oGRFieldDefn_GetNameRef poFieldDfn
-        str <- peekCAString cstr
-        putStrLn $ "GetNameRef poFieldDfn = " ++ str
+        str1 <- peekCAString cstr
+        -- putStrLn $ "GetNameRef poFieldDfn = " ++ str
+        t <- oGRFieldDefn_GetType poFieldDfn
+        str2 <-
+          if | t == oFTInteger   -> do
+               v <- oGRFeature_GetFieldAsInteger poFeature i
+               pure (show v)
+             | t == oFTString    -> do
+               v <- oGRFeature_GetFieldAsString poFeature i
+               v' <- peekCAString v
+               pure v'
+             | t == oFTInteger64 -> do
+               v <- oGRFeature_GetFieldAsInteger64 poFeature i
+               pure (show v)
+             | otherwise         -> pure "otherwise"
+        putStrLn $ str1 ++ " = " ++ str2
   pure ()
