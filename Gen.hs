@@ -7,7 +7,11 @@ import System.Directory (getCurrentDirectory)
 import System.FilePath ((</>))
 --
 import FFICXX.Generate.Builder        ( simpleBuilder )
-import FFICXX.Generate.Code.Primitive ( charpp, cppclass_, cstring, uint, void_ )
+import FFICXX.Generate.Code.Primitive ( charpp, cppclass_, cstring
+                                      , int, int_
+                                      , uint
+                                      , void_
+                                      )
 import FFICXX.Generate.Config         ( FFICXXConfig(..)
                                       , SimpleBuilderConfig(..)
                                       )
@@ -54,7 +58,7 @@ cabal = Cabal {
   , cabal_extrafiles         = []
   , cabal_pkg_config_depends = [ "gdal" ]
   , cabal_buildType          = Simple
-  }  
+  }
 
 gdalclass :: String -> [Class] -> [Function] -> Class
 gdalclass n ps fs =
@@ -85,13 +89,22 @@ gDALMajorObject =
 gDALDataset :: Class
 gDALDataset =
   gdalclass "GDALDataset" [gDALMajorObject]
-  [
+  [ Virtual (cppclass_ oGRLayer) "GetLayer" [int "iLayer"] Nothing
+  , Virtual int_ "GetLayerCount" [] Nothing
   ]
+
+oGRLayer :: Class
+oGRLayer =
+  gdalclass "OGRLayer" [gDALMajorObject]
+  [ Virtual int_ {- GIntBit = 64 bit -} "GetFeatureCount" [ int "bForce" ] Nothing
+  ]
+
 
 classes =
   [ deletable
   , gDALDataset
   , gDALMajorObject
+  , oGRLayer
   ]
 
 toplevelfunctions :: [TopLevelFunction]
@@ -112,7 +125,8 @@ headers =
     )
   , modImports "GDALMajorObject" [] ["gdal_priv.h"]
   , modImports "GDALDataset"     [] ["gdal_priv.h"]
-  ]  
+  , modImports "OGRLayer"        [] ["ogrsf_frmts.h"]
+  ]
 
 extraLib = []
 
@@ -141,4 +155,3 @@ main = do
                }
 
   simpleBuilder fficfg sbcfg
-

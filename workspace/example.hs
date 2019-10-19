@@ -22,4 +22,9 @@ main = do
   putStrLn "testing hgdal"
   gDALAllRegister
   poDS <- gDALOpenEx ("tl_2019_us_state.shp"::CString) gDAL_OF_VECTOR nullPtr nullPtr nullPtr
+  n1 <- getLayerCount poDS
+  print n1
+  poLayer <- getLayer poDS 0
+  n2 <- getFeatureCount poLayer 1
+  print n2
   pure ()
