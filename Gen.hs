@@ -99,11 +99,19 @@ oGRFeature =
   [ NonVirtual int_ "GetFieldCount" [] Nothing
   ]
 
+oGRFeatureDefn :: Class
+oGRFeatureDefn =
+  gdalclass "OGRFeatureDefn" [ deletable ]
+  [ Virtual int_ "GetFieldCount" [] Nothing
+  , Virtual int_ "GetGeomFieldCount" [] Nothing
+  ]
+
 
 oGRLayer :: Class
 oGRLayer =
   gdalclass "OGRLayer" [ gDALMajorObject ]
   [ Virtual int_ {- GIntBit = 64 bit -} "GetFeatureCount" [ int "bForce" ] Nothing
+  , Virtual (cppclass_ oGRFeatureDefn) "GetLayerDefn" [] Nothing
   , Virtual (cppclass_ oGRFeature) "GetNextFeature" [] Nothing
   , Virtual void_ "ResetReading" [] Nothing
   ]
@@ -114,6 +122,7 @@ classes =
   , gDALDataset
   , gDALMajorObject
   , oGRFeature
+  , oGRFeatureDefn
   , oGRLayer
   ]
 
@@ -136,6 +145,7 @@ headers =
   , modImports "GDALMajorObject" [] ["gdal_priv.h"]
   , modImports "GDALDataset"     [] ["gdal_priv.h"]
   , modImports "OGRFeature"      [] ["ogr_feature.h"]
+  , modImports "OGRFeatureDefn"  [] ["ogr_feature.h"]
   , modImports "OGRLayer"        [] ["ogrsf_frmts.h"]
   ]
 

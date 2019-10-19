@@ -3,6 +3,7 @@
 
 module Main where
 
+import Control.Monad.Loops
 import Data.String      ( IsString(fromString) )
 import Foreign.C.String ( CString, newCString )
 import Foreign.C.Types  ( CUInt )
@@ -23,12 +24,26 @@ main = do
   gDALAllRegister
   poDS <- gDALOpenEx ("tl_2019_us_state.shp"::CString) gDAL_OF_VECTOR nullPtr nullPtr nullPtr
   n1 <- getLayerCount poDS
-  print n1
+  putStrLn $ "getLayerCount poDS = " ++ show n1
+
   poLayer <- getLayer poDS 0
   n2 <- getFeatureCount poLayer 1
-  print n2
+  putStrLn $ "getFeatureCount poLayer = " ++ show n2
+
+  poFDefn <- getLayerDefn poLayer
+  n3 <- getFieldCount poFDefn
+  putStrLn $ "getFieldCount poFDefn = " ++ show n3
+  n4 <- getGeomFieldCount poFDefn
+  putStrLn $ "getGeomFieldCount poFDefn = " ++ show n4
+
+
   resetReading poLayer
-  poFeature <- getNextFeature poLayer
-  n3 <- oGRFeature_GetFieldCount poFeature
-  print n3
+  whileJust_ (do p@(OGRFeature p') <- getNextFeature poLayer
+                 if p' == nullPtr
+                   then pure Nothing
+                   else pure (Just p)
+             ) $
+    \poFeature -> do
+      n3 <- oGRFeature_GetFieldCount poFeature
+      print n3
   pure ()
