@@ -8,7 +8,7 @@ import System.FilePath ((</>))
 --
 import FFICXX.Generate.Builder        ( simpleBuilder )
 import FFICXX.Generate.Code.Primitive ( charpp
-                                      , cppclass_
+                                      , cppclass, cppclass_
                                       , cstring, cstring_
                                       , double_
                                       , int, int_
@@ -106,7 +106,8 @@ oGREnvelope =
     , class_protected  = Protected []
     , class_alias      = Nothing
     , class_funcs      =
-      []
+      [ Constructor [] Nothing
+      ]
     , class_vars       =
       [ Variable double_ "MinX"
       , Variable double_ "MaxX"
@@ -145,6 +146,8 @@ oGRGeometry :: Class
 oGRGeometry =
   gdalclass "OGRGeometry" [ deletable ]
   [ Virtual uint_ {- OGRwkbGeometryType -} "getGeometryType" [] Nothing
+  , Virtual void_ "getEnvelope" [ cppclass oGREnvelope "psEnvelope" ] Nothing
+  , NonVirtual (cppclass_ oGRPolygon) "toPolygon" [] Nothing
   ]
 
 oGRLayer :: Class

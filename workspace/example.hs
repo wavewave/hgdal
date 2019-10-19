@@ -13,6 +13,11 @@ import Foreign.Ptr      ( nullPtr )
 import System.IO.Unsafe ( unsafePerformIO )
 --
 import GDAL
+import GDAL.OGREnvelope.Implementation ( oGREnvelope_MinX_get
+                                       , oGREnvelope_MaxX_get
+                                       , oGREnvelope_MinY_get
+                                       , oGREnvelope_MaxY_get
+                                       )
 
 instance IsString CString where
   fromString s = unsafePerformIO $ newCString s
@@ -94,7 +99,15 @@ main = do
       poGeometry <- oGRFeature_GetGeometryRef poFeature
       t' <- getGeometryType poGeometry
       str3 <-
-        if | t' == wkbPolygon      -> pure "wkbPolygon"
+        if | t' == wkbPolygon      -> do
+             poPoly <- oGRGeometry_toPolygon poGeometry
+             poEnv <- newOGREnvelope
+             getEnvelope poPoly poEnv
+             xmin <- oGREnvelope_MinX_get poEnv
+             xmax <- oGREnvelope_MaxX_get poEnv
+             ymin <- oGREnvelope_MinY_get poEnv
+             ymax <- oGREnvelope_MaxY_get poEnv
+             pure ("wkbPolygon: " ++ show ((xmin,ymin),(xmax,ymax)))
            | t' == wkbMultiPolygon -> pure "wkbMultiPolygon"
            | otherwise             -> pure "otherwise"
 
