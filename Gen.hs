@@ -10,6 +10,7 @@ import FFICXX.Generate.Builder        ( simpleBuilder )
 import FFICXX.Generate.Code.Primitive ( charpp
                                       , cppclass_
                                       , cstring, cstring_
+                                      , double_
                                       , int, int_
                                       , uint, uint_
                                       , void_
@@ -24,6 +25,7 @@ import FFICXX.Generate.Type.Class     ( Class(..)
                                       , Function(..)
                                       , ProtectedMethod(..)
                                       , TopLevelFunction(..)
+                                      , Variable(..)
                                       )
 import FFICXX.Generate.Type.Config    ( ModuleUnit(..)
                                       , ModuleUnitImports(..)
@@ -95,6 +97,25 @@ gDALDataset =
   , Virtual int_ "GetLayerCount" [] Nothing
   ]
 
+oGREnvelope :: Class
+oGREnvelope =
+  Class {
+      class_cabal      = cabal
+    , class_name       = "OGREnvelope"
+    , class_parents    = [ deletable ]
+    , class_protected  = Protected []
+    , class_alias      = Nothing
+    , class_funcs      =
+      []
+    , class_vars       =
+      [ Variable double_ "MinX"
+      , Variable double_ "MaxX"
+      , Variable double_ "MinY"
+      , Variable double_ "MaxY"
+      ]
+    , class_tmpl_funcs = []
+    }
+
 oGRFeature :: Class
 oGRFeature =
   gdalclass "OGRFeature" [ deletable ]
@@ -135,16 +156,34 @@ oGRLayer =
   , Virtual void_ "ResetReading" [] Nothing
   ]
 
+oGRPolygon :: Class
+oGRPolygon =
+  gdalclass "OGRPolygon" [ oGRCurvePolygon ]
+  [ ]
+
+oGRCurvePolygon :: Class
+oGRCurvePolygon =
+  gdalclass "OGRCurvePolygon" [ oGRSurface ]
+  [ ]
+
+oGRSurface :: Class
+oGRSurface =
+  gdalclass "OGRSurface" [ oGRGeometry ]
+  [ ]
 
 classes =
   [ deletable
   , gDALDataset
   , gDALMajorObject
+  , oGRCurvePolygon
+  , oGREnvelope
   , oGRFeature
   , oGRFeatureDefn
   , oGRFieldDefn
   , oGRGeometry
   , oGRLayer
+  , oGRPolygon
+  , oGRSurface
   ]
 
 toplevelfunctions :: [TopLevelFunction]
@@ -165,11 +204,15 @@ headers =
     )
   , modImports "GDALMajorObject" [] ["gdal_priv.h"]
   , modImports "GDALDataset"     [] ["gdal_priv.h"]
+  , modImports "OGRCurvePolygon" [] ["ogr_geometry.h"]
+  , modImports "OGREnvelope"     [] ["ogr_core.h"]
   , modImports "OGRFeature"      [] ["ogr_feature.h"]
   , modImports "OGRFeatureDefn"  [] ["ogr_feature.h"]
   , modImports "OGRFieldDefn"    [] ["ogr_feature.h"]
   , modImports "OGRGeometry"     [] ["ogr_geometry.h"]
   , modImports "OGRLayer"        [] ["ogrsf_frmts.h"]
+  , modImports "OGRPolygon"      [] ["ogr_geometry.h"]
+  , modImports "OGRSurface"      [] ["ogr_geometry.h"]
   ]
 
 extraLib = []
