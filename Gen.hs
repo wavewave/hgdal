@@ -1,3 +1,5 @@
+{-# LANGUAGE OverloadedStrings #-}
+
 module Main where
 
 import qualified Data.HashMap.Strict as HM
@@ -5,7 +7,7 @@ import System.Directory (getCurrentDirectory)
 import System.FilePath ((</>))
 --
 import FFICXX.Generate.Builder        ( simpleBuilder )
-import FFICXX.Generate.Code.Primitive ( void_ )
+import FFICXX.Generate.Code.Primitive ( charpp, cppclass_, cstring, uint, void_ )
 import FFICXX.Generate.Config         ( FFICXXConfig(..)
                                       , SimpleBuilderConfig(..)
                                       )
@@ -54,6 +56,19 @@ cabal = Cabal {
   , cabal_buildType          = Simple
   }  
 
+gdalclass :: String -> [Class] -> [Function] -> Class
+gdalclass n ps fs =
+  Class {
+      class_cabal      = cabal
+    , class_name       = n
+    , class_parents    = ps
+    , class_protected  = Protected []
+    , class_alias      = Nothing
+    , class_funcs      = fs
+    , class_vars       = []
+    , class_tmpl_funcs = []
+    }
+
 deletable :: Class
 deletable =
   AbstractClass cabal "Deletable" [] mempty Nothing
@@ -61,12 +76,29 @@ deletable =
   []
   []
 
+gDALMajorObject :: Class
+gDALMajorObject =
+  gdalclass "GDALMajorObject" []
+  [
+  ]
 
-classes = [ deletable ]
+gDALDataset :: Class
+gDALDataset =
+  gdalclass "GDALDataset" [gDALMajorObject]
+  [
+  ]
+
+classes =
+  [ deletable
+  , gDALDataset
+  , gDALMajorObject
+  ]
 
 toplevelfunctions :: [TopLevelFunction]
 toplevelfunctions =
   [ TopLevelFunction void_ "GDALAllRegister" [] Nothing
+  , TopLevelFunction (cppclass_ gDALDataset) "GDALOpenEx"
+    [ cstring "pszFilename", uint "nOpenFlags", charpp "papszAllowedDrivers", charpp "papszOpenOptions", charpp "papszSiblingFiles"] Nothing
   ]
 
 templates = []
@@ -78,6 +110,8 @@ headers =
       , muimports_headers    = [ HdrName "gdal.h" ]
       }
     )
+  , modImports "GDALMajorObject" [] ["gdal_priv.h"]
+  , modImports "GDALDataset"     [] ["gdal_priv.h"]
   ]  
 
 extraLib = []
