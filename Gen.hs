@@ -82,21 +82,30 @@ deletable =
 
 gDALMajorObject :: Class
 gDALMajorObject =
-  gdalclass "GDALMajorObject" []
+  gdalclass "GDALMajorObject" [ deletable ]
   [
   ]
 
 gDALDataset :: Class
 gDALDataset =
-  gdalclass "GDALDataset" [gDALMajorObject]
+  gdalclass "GDALDataset" [ gDALMajorObject ]
   [ Virtual (cppclass_ oGRLayer) "GetLayer" [int "iLayer"] Nothing
   , Virtual int_ "GetLayerCount" [] Nothing
   ]
 
+oGRFeature :: Class
+oGRFeature =
+  gdalclass "OGRFeature" [ deletable ]
+  [ NonVirtual int_ "GetFieldCount" [] Nothing
+  ]
+
+
 oGRLayer :: Class
 oGRLayer =
-  gdalclass "OGRLayer" [gDALMajorObject]
+  gdalclass "OGRLayer" [ gDALMajorObject ]
   [ Virtual int_ {- GIntBit = 64 bit -} "GetFeatureCount" [ int "bForce" ] Nothing
+  , Virtual (cppclass_ oGRFeature) "GetNextFeature" [] Nothing
+  , Virtual void_ "ResetReading" [] Nothing
   ]
 
 
@@ -104,6 +113,7 @@ classes =
   [ deletable
   , gDALDataset
   , gDALMajorObject
+  , oGRFeature
   , oGRLayer
   ]
 
@@ -125,6 +135,7 @@ headers =
     )
   , modImports "GDALMajorObject" [] ["gdal_priv.h"]
   , modImports "GDALDataset"     [] ["gdal_priv.h"]
+  , modImports "OGRFeature"      [] ["ogr_feature.h"]
   , modImports "OGRLayer"        [] ["ogrsf_frmts.h"]
   ]
 

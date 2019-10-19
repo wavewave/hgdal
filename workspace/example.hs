@@ -27,4 +27,8 @@ main = do
   poLayer <- getLayer poDS 0
   n2 <- getFeatureCount poLayer 1
   print n2
+  resetReading poLayer
+  poFeature <- getNextFeature poLayer
+  n3 <- oGRFeature_GetFieldCount poFeature
+  print n3
   pure ()
