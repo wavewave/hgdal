@@ -1,16 +1,21 @@
-{-# LANGUAGE FlexibleInstances #-}
-{-# LANGUAGE MultiWayIf        #-}
-{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleInstances   #-}
+{-# LANGUAGE MultiWayIf          #-}
+{-# LANGUAGE OverloadedStrings   #-}
+{-# LANGUAGE ScopedTypeVariables #-}
 
 module Main where
 
 import Control.Monad.Loops ( whileM, whileJust_ )
 import Data.Foldable    ( for_ )
 import Data.String      ( IsString(fromString) )
+import qualified Data.Vector.Storable as VS
 import Foreign.C.String ( CString, newCString, peekCAString )
-import Foreign.C.Types  ( CUInt )
+import Foreign.C.Types  ( CDouble, CUInt )
+import Foreign.ForeignPtr ( newForeignPtr_ )
+import Foreign.Marshal.Array ( allocaArray )
 import Foreign.Marshal.Utils ( toBool )
-import Foreign.Ptr      ( nullPtr )
+import Foreign.Ptr      ( Ptr, castPtr, nullPtr )
+import Foreign.Storable ( Storable(alignment) )
 import System.IO.Unsafe ( unsafePerformIO )
 --
 import GDAL
@@ -104,6 +109,9 @@ main = do
              poPoly <- oGRGeometry_toPolygon poGeometry
              poRing <- oGRPolygon_getExteriorRing poPoly
              n6 <- getNumPoints poRing
+
+
+             {- -- slow method
              iter <- getPointIterator poRing
              p <- newOGRPoint
              xys <-
@@ -112,7 +120,25 @@ main = do
                  y <- oGRPoint_getY p
                  pure (x,y)
              print xys
-
+             -}
+             let stride = fromIntegral (alignment (undefined :: CDouble))
+                 nn = fromIntegral n6
+             allocaArray nn $ \(px :: Ptr CDouble) ->
+               allocaArray nn $ \(py :: Ptr CDouble) -> do
+                 oGRSimpleCurve_getPoints
+                   (upcastOGRSimpleCurve poRing)
+                   (castPtr px)
+                   stride
+                   (castPtr py)
+                   stride
+                   nullPtr
+                   0
+                 fpx <- newForeignPtr_ px
+                 fpy <- newForeignPtr_ py
+                 let vx = VS.unsafeFromForeignPtr0 fpx nn
+                     vy = VS.unsafeFromForeignPtr0 fpy nn
+                 print vx
+                 print vy
 
              poEnv <- newOGREnvelope
              getEnvelope poPoly poEnv

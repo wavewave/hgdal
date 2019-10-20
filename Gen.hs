@@ -14,7 +14,7 @@ import FFICXX.Generate.Code.Primitive ( bool_
                                       , double_
                                       , int, int_
                                       , uint, uint_
-                                      , void_
+                                      , void_, voidp
                                       )
 import FFICXX.Generate.Config         ( FFICXXConfig(..)
                                       , SimpleBuilderConfig(..)
@@ -213,7 +213,10 @@ oGRCurvePolygon =
 oGRSimpleCurve :: Class
 oGRSimpleCurve =
   gdalclass "OGRSimpleCurve" [  oGRCurve ]
-  []
+  [ NonVirtual void_ "getPoints" [ voidp "pabyX", int "nXStride"
+                                 , voidp "pabyY", int "nYStride"
+                                 , voidp "pabyZ", int "nZStride" ] Nothing
+  ]
 
 oGRSurface :: Class
 oGRSurface =
