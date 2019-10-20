@@ -101,13 +101,15 @@ main = do
       str3 <-
         if | t' == wkbPolygon      -> do
              poPoly <- oGRGeometry_toPolygon poGeometry
+             poRing <- oGRPolygon_getExteriorRing poPoly
+             n6 <- getNumPoints poRing
              poEnv <- newOGREnvelope
              getEnvelope poPoly poEnv
              xmin <- oGREnvelope_MinX_get poEnv
              xmax <- oGREnvelope_MaxX_get poEnv
              ymin <- oGREnvelope_MinY_get poEnv
              ymax <- oGREnvelope_MaxY_get poEnv
-             pure ("wkbPolygon: " ++ show ((xmin,ymin),(xmax,ymax)))
+             pure ("wkbPolygon: " ++ show ((xmin,ymin),(xmax,ymax)) ++ ", n6 = " ++ show n6)
            | t' == wkbMultiPolygon -> pure "wkbMultiPolygon"
            | otherwise             -> pure "otherwise"
 

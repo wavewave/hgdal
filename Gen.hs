@@ -97,6 +97,14 @@ gDALDataset =
   , Virtual int_ "GetLayerCount" [] Nothing
   ]
 
+oGRCurve :: Class
+oGRCurve =
+  gdalclass "OGRCurve" [  oGRGeometry ]
+  [ Virtual int_ "getNumPoints" [] Nothing
+  ]
+
+
+
 oGREnvelope :: Class
 oGREnvelope =
   Class {
@@ -159,15 +167,33 @@ oGRLayer =
   , Virtual void_ "ResetReading" [] Nothing
   ]
 
+oGRLinearRing :: Class
+oGRLinearRing =
+  gdalclass "OGRLinearRing" [  oGRLineString ]
+  [
+  ]
+
+oGRLineString :: Class
+oGRLineString =
+  gdalclass "OGRLineString" [  oGRSimpleCurve ]
+  [
+  ]
+
 oGRPolygon :: Class
 oGRPolygon =
   gdalclass "OGRPolygon" [ oGRCurvePolygon ]
-  [ ]
+  [ NonVirtual (cppclass_ oGRLinearRing) "getExteriorRing" [] Nothing
+  ]
 
 oGRCurvePolygon :: Class
 oGRCurvePolygon =
   gdalclass "OGRCurvePolygon" [ oGRSurface ]
   [ ]
+
+oGRSimpleCurve :: Class
+oGRSimpleCurve =
+  gdalclass "OGRSimpleCurve" [  oGRCurve ]
+  []
 
 oGRSurface :: Class
 oGRSurface =
@@ -178,6 +204,7 @@ classes =
   [ deletable
   , gDALDataset
   , gDALMajorObject
+  , oGRCurve
   , oGRCurvePolygon
   , oGREnvelope
   , oGRFeature
@@ -185,7 +212,10 @@ classes =
   , oGRFieldDefn
   , oGRGeometry
   , oGRLayer
+  , oGRLinearRing
+  , oGRLineString
   , oGRPolygon
+  , oGRSimpleCurve
   , oGRSurface
   ]
 
@@ -207,6 +237,7 @@ headers =
     )
   , modImports "GDALMajorObject" [] ["gdal_priv.h"]
   , modImports "GDALDataset"     [] ["gdal_priv.h"]
+  , modImports "OGRCurve"        [] ["ogr_geometry.h"]
   , modImports "OGRCurvePolygon" [] ["ogr_geometry.h"]
   , modImports "OGREnvelope"     [] ["ogr_core.h"]
   , modImports "OGRFeature"      [] ["ogr_feature.h"]
@@ -214,7 +245,10 @@ headers =
   , modImports "OGRFieldDefn"    [] ["ogr_feature.h"]
   , modImports "OGRGeometry"     [] ["ogr_geometry.h"]
   , modImports "OGRLayer"        [] ["ogrsf_frmts.h"]
+  , modImports "OGRLinearRing"   [] ["ogr_geometry.h"]
+  , modImports "OGRLineString"   [] ["ogr_geometry.h"]
   , modImports "OGRPolygon"      [] ["ogr_geometry.h"]
+  , modImports "OGRSimpleCurve"  [] ["ogr_geometry.h"]
   , modImports "OGRSurface"      [] ["ogr_geometry.h"]
   ]
 
