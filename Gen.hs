@@ -7,7 +7,8 @@ import System.Directory (getCurrentDirectory)
 import System.FilePath ((</>))
 --
 import FFICXX.Generate.Builder        ( simpleBuilder )
-import FFICXX.Generate.Code.Primitive ( charpp
+import FFICXX.Generate.Code.Primitive ( bool_
+                                      , charpp
                                       , cppclass, cppclass_
                                       , cstring, cstring_
                                       , double_
@@ -101,6 +102,7 @@ oGRCurve :: Class
 oGRCurve =
   gdalclass "OGRCurve" [  oGRGeometry ]
   [ Virtual int_ "getNumPoints" [] Nothing
+  , Virtual (cppclass_ oGRPointIterator) "getPointIterator" [] Nothing
   ]
 
 
@@ -179,6 +181,24 @@ oGRLineString =
   [
   ]
 
+oGRPoint :: Class
+oGRPoint =
+  gdalclass "OGRPoint" [ oGRGeometry ]
+  [ Constructor [] Nothing
+  , NonVirtual double_ "getX" [ ] Nothing
+  , NonVirtual double_ "getY" [ ] Nothing
+  , NonVirtual double_ "getZ" [ ] Nothing
+  , NonVirtual double_ "getM" [ ] Nothing
+  ]
+
+
+
+oGRPointIterator :: Class
+oGRPointIterator =
+  gdalclass "OGRPointIterator" [ deletable ]
+  [ Virtual bool_ {- OGRBoolean -} "getNextPoint" [ cppclass oGRPoint "pt" ] Nothing
+  ]
+
 oGRPolygon :: Class
 oGRPolygon =
   gdalclass "OGRPolygon" [ oGRCurvePolygon ]
@@ -214,6 +234,8 @@ classes =
   , oGRLayer
   , oGRLinearRing
   , oGRLineString
+  , oGRPoint
+  , oGRPointIterator
   , oGRPolygon
   , oGRSimpleCurve
   , oGRSurface
@@ -247,6 +269,8 @@ headers =
   , modImports "OGRLayer"        [] ["ogrsf_frmts.h"]
   , modImports "OGRLinearRing"   [] ["ogr_geometry.h"]
   , modImports "OGRLineString"   [] ["ogr_geometry.h"]
+  , modImports "OGRPoint"        [] ["ogr_geometry.h"]
+  , modImports "OGRPointIterator"[] ["ogr_geometry.h"]
   , modImports "OGRPolygon"      [] ["ogr_geometry.h"]
   , modImports "OGRSimpleCurve"  [] ["ogr_geometry.h"]
   , modImports "OGRSurface"      [] ["ogr_geometry.h"]

@@ -4,11 +4,12 @@
 
 module Main where
 
-import Control.Monad.Loops ( whileJust_ )
+import Control.Monad.Loops ( whileM, whileJust_ )
 import Data.Foldable    ( for_ )
 import Data.String      ( IsString(fromString) )
 import Foreign.C.String ( CString, newCString, peekCAString )
 import Foreign.C.Types  ( CUInt )
+import Foreign.Marshal.Utils ( toBool )
 import Foreign.Ptr      ( nullPtr )
 import System.IO.Unsafe ( unsafePerformIO )
 --
@@ -103,6 +104,16 @@ main = do
              poPoly <- oGRGeometry_toPolygon poGeometry
              poRing <- oGRPolygon_getExteriorRing poPoly
              n6 <- getNumPoints poRing
+             iter <- getPointIterator poRing
+             p <- newOGRPoint
+             xys <-
+               whileM (toBool <$> getNextPoint iter p) $ do
+                 x <- oGRPoint_getX p
+                 y <- oGRPoint_getY p
+                 pure (x,y)
+             print xys
+
+
              poEnv <- newOGREnvelope
              getEnvelope poPoly poEnv
              xmin <- oGREnvelope_MinX_get poEnv
