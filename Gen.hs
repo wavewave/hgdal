@@ -4,6 +4,7 @@ module Main where
 
 import qualified Data.HashMap.Strict as HM
 import System.Directory (getCurrentDirectory)
+import System.Environment (getArgs)
 import System.FilePath ((</>))
 --
 import FFICXX.Generate.Builder        ( simpleBuilder )
@@ -286,8 +287,12 @@ extraDep = []
 
 main :: IO ()
 main = do
+  args <- getArgs
+  let tmpldir =  if length args == 1
+                 then args !! 0
+                 else "../template"
+
   cwd <- getCurrentDirectory
-  let tmpldir = "../template"
   let fficfg = FFICXXConfig {
                  fficxxconfig_workingDir     = cwd </> "tmp" </> "working"
                , fficxxconfig_installBaseDir = cwd </> "hgdal"
