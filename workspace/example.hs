@@ -8,7 +8,9 @@ module Main where
 import Control.Monad.Loops ( whileM, whileJust_ )
 import Data.Foldable    ( for_ )
 import Data.String      ( IsString(fromString) )
+import qualified Data.Vector.Generic as VG
 import qualified Data.Vector.Storable as VS
+import qualified Data.Vector as V
 import Foreign.C.String ( CString, newCString, peekCAString )
 import Foreign.C.Types  ( CDouble, CUInt )
 import Foreign.ForeignPtr ( newForeignPtr_ )
@@ -110,8 +112,8 @@ main = do
              poRing <- oGRPolygon_getExteriorRing poPoly
              n6 <- getNumPoints poRing
 
-
-             {- -- slow method
+             {-
+             -- slow method
              iter <- getPointIterator poRing
              p <- newOGRPoint
              xys <-
@@ -121,6 +123,7 @@ main = do
                  pure (x,y)
              print xys
              -}
+             -- fast method
              let stride = fromIntegral (alignment (undefined :: CDouble))
                  nn = fromIntegral n6
              allocaArray nn $ \(px :: Ptr CDouble) ->
@@ -137,8 +140,7 @@ main = do
                  fpy <- newForeignPtr_ py
                  let vx = VS.unsafeFromForeignPtr0 fpx nn
                      vy = VS.unsafeFromForeignPtr0 fpy nn
-                 print vx
-                 print vy
+                 print $ V.zip (VG.convert vx) (VG.convert vy)
 
              poEnv <- newOGREnvelope
              getEnvelope poPoly poEnv
