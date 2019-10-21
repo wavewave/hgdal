@@ -140,7 +140,8 @@ main = do
                  fpy <- newForeignPtr_ py
                  let vx = VS.unsafeFromForeignPtr0 fpx nn
                      vy = VS.unsafeFromForeignPtr0 fpy nn
-                 print $ V.zip (VG.convert vx) (VG.convert vy)
+                 pure ()
+                 -- print $ V.zip (VG.convert vx) (VG.convert vy)
 
              poEnv <- newOGREnvelope
              getEnvelope poPoly poEnv
@@ -149,7 +150,20 @@ main = do
              ymin <- oGREnvelope_MinY_get poEnv
              ymax <- oGREnvelope_MaxY_get poEnv
              pure ("wkbPolygon: " ++ show ((xmin,ymin),(xmax,ymax)) ++ ", n6 = " ++ show n6)
-           | t' == wkbMultiPolygon -> pure "wkbMultiPolygon"
+           | t' == wkbMultiPolygon -> do
+               poMPoly <- oGRGeometry_toMultiPolygon poGeometry
+               n <- oGRGeometryCollection_getNumGeometries (upcastOGRGeometryCollection poMPoly)
+               putStrLn "===============================+"
+               print n
+               for_ [0..n-1] $ \i -> do
+                 putStrLn "***"
+                 g <- oGRGeometryCollection_getGeometryRef (upcastOGRGeometryCollection poMPoly) i
+                 g' <- oGRGeometry_toPolygon g
+                 l <- oGRPolygon_getExteriorRing g'
+                 np <- getNumPoints l
+                 print np
+               putStrLn "===============================+"
+               pure "wkbMultiPolygon"
            | otherwise             -> pure "otherwise"
 
       print str3

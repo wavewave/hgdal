@@ -160,13 +160,14 @@ oGRGeometry =
   [ Virtual uint_ {- OGRwkbGeometryType -} "getGeometryType" [] Nothing
   , Virtual void_ "getEnvelope" [ cppclass oGREnvelope "psEnvelope" ] Nothing
   , NonVirtual (cppclass_ oGRPolygon) "toPolygon" [] Nothing
-  , NonVirtual (cppclass_ oGRPolygon) "toMultiPolygon" [] Nothing
+  , NonVirtual (cppclass_ oGRMultiPolygon) "toMultiPolygon" [] Nothing
   ]
 
 oGRGeometryCollection :: Class
 oGRGeometryCollection =
   gdalclass "OGRGeometryCollection" [ oGRGeometry ]
-  [
+  [ NonVirtual int_ "getNumGeometries" [] Nothing
+  , NonVirtual (cppclass_ oGRGeometry) "getGeometryRef" [ int "i" ] Nothing
   ]
 
 
