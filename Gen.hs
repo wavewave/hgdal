@@ -160,7 +160,15 @@ oGRGeometry =
   [ Virtual uint_ {- OGRwkbGeometryType -} "getGeometryType" [] Nothing
   , Virtual void_ "getEnvelope" [ cppclass oGREnvelope "psEnvelope" ] Nothing
   , NonVirtual (cppclass_ oGRPolygon) "toPolygon" [] Nothing
+  , NonVirtual (cppclass_ oGRPolygon) "toMultiPolygon" [] Nothing
   ]
+
+oGRGeometryCollection :: Class
+oGRGeometryCollection =
+  gdalclass "OGRGeometryCollection" [ oGRGeometry ]
+  [
+  ]
+
 
 oGRLayer :: Class
 oGRLayer =
@@ -180,6 +188,18 @@ oGRLinearRing =
 oGRLineString :: Class
 oGRLineString =
   gdalclass "OGRLineString" [  oGRSimpleCurve ]
+  [
+  ]
+
+oGRMultiPolygon :: Class
+oGRMultiPolygon =
+  gdalclass "OGRMultiPolygon" [ oGRMultiSurface ]
+  [
+  ]
+
+oGRMultiSurface :: Class
+oGRMultiSurface =
+  gdalclass "OGRMultiSurface" [ oGRGeometryCollection ]
   [
   ]
 
@@ -236,9 +256,12 @@ classes =
   , oGRFeatureDefn
   , oGRFieldDefn
   , oGRGeometry
+  , oGRGeometryCollection
   , oGRLayer
   , oGRLinearRing
   , oGRLineString
+  , oGRMultiPolygon
+  , oGRMultiSurface
   , oGRPoint
   , oGRPointIterator
   , oGRPolygon
@@ -271,9 +294,12 @@ headers =
   , modImports "OGRFeatureDefn"  [] ["ogr_feature.h"]
   , modImports "OGRFieldDefn"    [] ["ogr_feature.h"]
   , modImports "OGRGeometry"     [] ["ogr_geometry.h"]
+  , modImports "OGRGeometryCollection" [] ["ogr_geometry.h"]
   , modImports "OGRLayer"        [] ["ogrsf_frmts.h"]
   , modImports "OGRLinearRing"   [] ["ogr_geometry.h"]
   , modImports "OGRLineString"   [] ["ogr_geometry.h"]
+  , modImports "OGRMultiPolygon" [] ["ogr_geometry.h"]
+  , modImports "OGRMultiSurface" [] ["ogr_geometry.h"]
   , modImports "OGRPoint"        [] ["ogr_geometry.h"]
   , modImports "OGRPointIterator"[] ["ogr_geometry.h"]
   , modImports "OGRPolygon"      [] ["ogr_geometry.h"]
