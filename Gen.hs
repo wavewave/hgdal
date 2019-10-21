@@ -131,7 +131,8 @@ oGREnvelope =
 oGRFeature :: Class
 oGRFeature =
   gdalclass "OGRFeature" [ deletable ]
-  [ NonVirtual int_ "GetFieldCount" [] Nothing
+  [ NonVirtual int_ {- GIntBig = Int64 -} "GetFID" [] Nothing
+  , NonVirtual int_ "GetFieldCount" [] Nothing
   , NonVirtual int_ "GetFieldAsInteger" [ int "i" ] Nothing
   , NonVirtual int_ {- GIntBig = Int64 -} "GetFieldAsInteger64" [ int "i" ] Nothing
   , NonVirtual cstring_ "GetFieldAsString" [ int "i" ] Nothing
