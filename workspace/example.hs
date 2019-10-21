@@ -58,6 +58,26 @@ wkbMultiPolygon = 6
 -- end of enum
 
 
+withVectorFromRing :: OGRLinearRing -> ((VS.Vector CDouble, VS.Vector CDouble) -> IO a) -> IO a
+withVectorFromRing poRing action = do
+  nPoints <- fromIntegral <$> getNumPoints poRing
+  let stride = fromIntegral (alignment (undefined :: CDouble))
+  allocaArray nPoints $ \(px :: Ptr CDouble) ->
+    allocaArray nPoints $ \(py :: Ptr CDouble) -> do
+      oGRSimpleCurve_getPoints
+        (upcastOGRSimpleCurve poRing)
+        (castPtr px)
+        stride
+        (castPtr py)
+        stride
+        nullPtr
+        0
+      fpx <- newForeignPtr_ px
+      fpy <- newForeignPtr_ py
+      let vx = VS.unsafeFromForeignPtr0 fpx nPoints
+          vy = VS.unsafeFromForeignPtr0 fpy nPoints
+      action (vx,vy)
+
 main :: IO ()
 main = do
   putStrLn "testing hgdal"
@@ -110,7 +130,6 @@ main = do
         if | t' == wkbPolygon      -> do
              poPoly <- oGRGeometry_toPolygon poGeometry
              poRing <- oGRPolygon_getExteriorRing poPoly
-             n6 <- getNumPoints poRing
 
              {-
              -- slow method
@@ -124,32 +143,15 @@ main = do
              print xys
              -}
              -- fast method
-             let stride = fromIntegral (alignment (undefined :: CDouble))
-                 nn = fromIntegral n6
-             allocaArray nn $ \(px :: Ptr CDouble) ->
-               allocaArray nn $ \(py :: Ptr CDouble) -> do
-                 oGRSimpleCurve_getPoints
-                   (upcastOGRSimpleCurve poRing)
-                   (castPtr px)
-                   stride
-                   (castPtr py)
-                   stride
-                   nullPtr
-                   0
-                 fpx <- newForeignPtr_ px
-                 fpy <- newForeignPtr_ py
-                 let vx = VS.unsafeFromForeignPtr0 fpx nn
-                     vy = VS.unsafeFromForeignPtr0 fpy nn
-                 pure ()
-                 -- print $ V.zip (VG.convert vx) (VG.convert vy)
-
+             -- withVectorFromRing poRing $ \(vx,vy) ->
+             --   print $ V.zip (VG.convert vx) (VG.convert vy)
              poEnv <- newOGREnvelope
              getEnvelope poPoly poEnv
              xmin <- oGREnvelope_MinX_get poEnv
              xmax <- oGREnvelope_MaxX_get poEnv
              ymin <- oGREnvelope_MinY_get poEnv
              ymax <- oGREnvelope_MaxY_get poEnv
-             pure ("wkbPolygon: " ++ show ((xmin,ymin),(xmax,ymax)) ++ ", n6 = " ++ show n6)
+             pure ("wkbPolygon: " ++ show ((xmin,ymin),(xmax,ymax)))
            | t' == wkbMultiPolygon -> do
                poMPoly <- oGRGeometry_toMultiPolygon poGeometry
                n <- oGRGeometryCollection_getNumGeometries (upcastOGRGeometryCollection poMPoly)
@@ -160,8 +162,10 @@ main = do
                  g <- oGRGeometryCollection_getGeometryRef (upcastOGRGeometryCollection poMPoly) i
                  g' <- oGRGeometry_toPolygon g
                  l <- oGRPolygon_getExteriorRing g'
-                 np <- getNumPoints l
-                 print np
+                 withVectorFromRing l $ \(vx,vy) ->
+                   print $ V.zip (VG.convert vx) (VG.convert vy)
+                 -- np <- getNumPoints l
+                 -- print np
                putStrLn "===============================+"
                pure "wkbMultiPolygon"
            | otherwise             -> pure "otherwise"
