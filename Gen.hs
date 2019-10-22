@@ -12,7 +12,7 @@ import FFICXX.Generate.Code.Primitive ( bool_
                                       , charpp
                                       , cppclass, cppclass_
                                       , cstring, cstring_
-                                      , double_
+                                      , double, double_
                                       , int, int_
                                       , uint, uint_
                                       , void_, voidp
@@ -159,6 +159,14 @@ oGRGeometry =
   gdalclass "OGRGeometry" [ deletable ]
   [ Virtual uint_ {- OGRwkbGeometryType -} "getGeometryType" [] Nothing
   , Virtual void_ "getEnvelope" [ cppclass oGREnvelope "psEnvelope" ] Nothing
+  , Virtual bool_ {- OGRBoolean -} "Intersects" [ cppclass oGRGeometry "g"] Nothing
+  , Virtual bool_ {- OGRBoolean -} "Equals"     [ cppclass oGRGeometry "g"] Nothing
+  , Virtual bool_ {- OGRBoolean -} "Disjoint"   [ cppclass oGRGeometry "g"] Nothing
+  , Virtual bool_ {- OGRBoolean -} "Touches"    [ cppclass oGRGeometry "g"] Nothing
+  , Virtual bool_ {- OGRBoolean -} "Crosses"    [ cppclass oGRGeometry "g"] Nothing
+  , Virtual bool_ {- OGRBoolean -} "Within"     [ cppclass oGRGeometry "g"] Nothing
+  , Virtual bool_ {- OGRBoolean -} "Contains"   [ cppclass oGRGeometry "g"] Nothing
+  , Virtual bool_ {- OGRBoolean -} "Overlaps"   [ cppclass oGRGeometry "g"] Nothing
   , NonVirtual (cppclass_ oGRPolygon) "toPolygon" [] Nothing
   , NonVirtual (cppclass_ oGRMultiPolygon) "toMultiPolygon" [] Nothing
   ]
@@ -208,10 +216,17 @@ oGRPoint :: Class
 oGRPoint =
   gdalclass "OGRPoint" [ oGRGeometry ]
   [ Constructor [] Nothing
+  , Constructor [double "x", double "y"]                         (Just "newOGRPoint2")
+  , Constructor [double "x", double "y", double "z"]             (Just "newOGRPoint3")
+  , Constructor [double "x", double "y", double "z", double "m"] (Just "newOGRPoint4")
   , NonVirtual double_ "getX" [ ] Nothing
   , NonVirtual double_ "getY" [ ] Nothing
   , NonVirtual double_ "getZ" [ ] Nothing
   , NonVirtual double_ "getM" [ ] Nothing
+  , NonVirtual void_   "setX" [ double "xIn" ] Nothing
+  , NonVirtual void_   "setY" [ double "yIn" ] Nothing
+  , NonVirtual void_   "setZ" [ double "zIn" ] Nothing
+  , NonVirtual void_   "setM" [ double "mIn" ] Nothing
   ]
 
 
