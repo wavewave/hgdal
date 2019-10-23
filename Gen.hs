@@ -182,7 +182,8 @@ oGRGeometryCollection =
 oGRLayer :: Class
 oGRLayer =
   gdalclass "OGRLayer" [ gDALMajorObject ]
-  [ Virtual int_ {- GIntBit = 64 bit -} "GetFeatureCount" [ int "bForce" ] Nothing
+  [ Virtual (cppclass_ oGRFeature) "GetFeature" [ int "nFID" {- GIntBig = 64 bit -} ] Nothing
+  , Virtual int_ {- GIntBit = 64 bit -} "GetFeatureCount" [ int "bForce" ] Nothing
   , Virtual (cppclass_ oGRFeatureDefn) "GetLayerDefn" [] Nothing
   , Virtual (cppclass_ oGRFeature) "GetNextFeature" [] Nothing
   , Virtual void_ "ResetReading" [] Nothing
