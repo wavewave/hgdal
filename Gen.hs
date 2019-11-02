@@ -35,6 +35,45 @@ import FFICXX.Generate.Type.Config    ( ModuleUnit(..)
 import FFICXX.Generate.Type.PackageInterface ( Namespace(..), HeaderName(..) )
 
 
+------------------------
+-- import from stdcxx --
+------------------------
+
+stdcxx_cabal :: Cabal
+stdcxx_cabal = Cabal {
+    cabal_pkgname            = CabalName "stdcxx"
+  , cabal_version            = "0.5"
+  , cabal_cheaderprefix      = "STD"
+  , cabal_moduleprefix       = "STD"
+  , cabal_additional_c_incs  = []
+  , cabal_additional_c_srcs  = []
+  , cabal_additional_pkgdeps = []
+  , cabal_license            = Nothing
+  , cabal_licensefile        = Nothing
+  , cabal_extraincludedirs   = []
+  , cabal_extralibdirs       = []
+  , cabal_extrafiles         = []
+  , cabal_pkg_config_depends = []
+  , cabal_buildType          = Simple
+  }
+
+deletable :: Class
+deletable =
+  AbstractClass {
+      class_cabal      = stdcxx_cabal
+    , class_name       = "Deletable"
+    , class_parents    = []
+    , class_protected  = Protected []
+    , class_alias      = Nothing
+    , class_funcs      = [ Destructor Nothing ]
+    , class_vars       = []
+    , class_tmpl_funcs = []
+    }
+
+-----------------
+-- start hgdal --
+-----------------
+
 modImports ::
      String
   -> [String]
@@ -56,7 +95,7 @@ cabal = Cabal {
   , cabal_moduleprefix       = "GDAL"
   , cabal_additional_c_incs  = []
   , cabal_additional_c_srcs  = []
-  , cabal_additional_pkgdeps = []
+  , cabal_additional_pkgdeps = [ CabalName "stdcxx" ]
   , cabal_license            = Just "BSD3"
   , cabal_licensefile        = Just "LICENSE"
   , cabal_extraincludedirs   = []
@@ -78,13 +117,6 @@ gdalclass n ps fs =
     , class_vars       = []
     , class_tmpl_funcs = []
     }
-
-deletable :: Class
-deletable =
-  AbstractClass cabal "Deletable" [] mempty Nothing
-  [ Destructor Nothing ]
-  []
-  []
 
 gDALMajorObject :: Class
 gDALMajorObject =
@@ -263,8 +295,7 @@ oGRSurface =
   [ ]
 
 classes =
-  [ deletable
-  , gDALDataset
+  [ gDALDataset
   , gDALMajorObject
   , oGRCurve
   , oGRCurvePolygon
