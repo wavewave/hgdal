@@ -1,8 +1,8 @@
-{ pkgs ? import <nixpkgs> {} }:
+{ pkgs ? import <nixpkgs> {}, fficxxSrc }:
 
 let
 
-  hgdal-src = pkgs.callPackage ./gen.nix {};
+  hgdal-src = pkgs.callPackage ./gen.nix { inherit fficxxSrc; };
 
 in
 

@@ -20,7 +20,7 @@ let
 in
 
 stdenv.mkDerivation {
-  name = "HROOT-dev";
+  name = "hgdal-dev";
 
   buildInputs = [
     gdal
