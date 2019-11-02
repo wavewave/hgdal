@@ -11,18 +11,24 @@ let
   };
 
   newHaskellPackages0 = haskellPackages.override {
-    overrides = callPackage ./nix/config.nix { inherit fficxxSrc; };
+    overrides = self: super: {
+      "fficxx-runtime" = self.callCabal2nix "fficxx-runtime" (fficxxSrc + "/fficxx-runtime") {};
+      "fficxx"         = self.callCabal2nix "fficxx"         (fficxxSrc + "/fficxx")         {};
+    };
   };
 
-  stdcxxNix = import ./nix/config-stdcxx.nix {
-    inherit fficxxSrc stdenv fetchgit; packages = newHaskellPackages0;
+  stdcxxNix = import (fficxxSrc + "/stdcxx-gen/default.nix") {
+    inherit stdenv;
+    haskellPackages = newHaskellPackages0;
   };
 
   newHaskellPackages = haskellPackages.override {
-    overrides = self: super:
-      callPackage ./nix/config.nix { inherit fficxxSrc; } self super //
-      { "stdcxx" = self.callPackage stdcxxNix {}; } //
-      callPackage ./default.nix { inherit fficxxSrc; } self super;
+    overrides = self: super: {
+      "fficxx-runtime" = self.callCabal2nix "fficxx-runtime" (fficxxSrc + "/fficxx-runtime") {};
+      "fficxx"         = self.callCabal2nix "fficxx"         (fficxxSrc + "/fficxx")         {};
+      "stdcxx"         = self.callPackage stdcxxNix {};
+    }
+    // callPackage ./default.nix { inherit fficxxSrc; } self super;
   };
 
   hsenv = newHaskellPackages.ghcWithPackages (p: with p; [
