@@ -22,7 +22,8 @@ import FFICXX.Generate.Config         ( FFICXXConfig(..)
                                       )
 import FFICXX.Generate.Type.Cabal     ( BuildType(..), Cabal(..), CabalName(..) )
 import FFICXX.Generate.Type.Config    ( ModuleUnit(..), ModuleUnitMap(..), ModuleUnitImports(..) )
-import FFICXX.Generate.Type.Class     ( Class(..)
+import FFICXX.Generate.Type.Class     ( Arg(..)
+                                      , Class(..)
                                       , CTypes(CTDouble)
                                       , Function(..)
                                       , ProtectedMethod(..)
@@ -152,10 +153,10 @@ oGREnvelope =
       [ Constructor [] Nothing
       ]
     , class_vars       =
-      [ Variable double_ "MinX"
-      , Variable double_ "MaxX"
-      , Variable double_ "MinY"
-      , Variable double_ "MaxY"
+      [ Variable (Arg double_ "MinX")
+      , Variable (Arg double_ "MaxX")
+      , Variable (Arg double_ "MinY")
+      , Variable (Arg double_ "MaxY")
       ]
     , class_tmpl_funcs = []
     }
