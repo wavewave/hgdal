@@ -33,7 +33,7 @@ import FFICXX.Generate.Type.Class     ( Arg(..)
 import FFICXX.Generate.Type.Config    ( ModuleUnit(..)
                                       , ModuleUnitImports(..)
                                       )
-import FFICXX.Generate.Type.PackageInterface ( Namespace(..), HeaderName(..) )
+import FFICXX.Runtime.CodeGen.C       ( Namespace(..), HeaderName(..) )
 
 
 ------------------------
