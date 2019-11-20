@@ -192,14 +192,29 @@ oGRGeometry =
   gdalclass "OGRGeometry" [ deletable ]
   [ Virtual uint_ {- OGRwkbGeometryType -} "getGeometryType" [] Nothing
   , Virtual void_ "getEnvelope" [ cppclass oGREnvelope "psEnvelope" ] Nothing
-  , Virtual bool_ {- OGRBoolean -} "Intersects" [ cppclass oGRGeometry "g"] Nothing
-  , Virtual bool_ {- OGRBoolean -} "Equals"     [ cppclass oGRGeometry "g"] Nothing
-  , Virtual bool_ {- OGRBoolean -} "Disjoint"   [ cppclass oGRGeometry "g"] Nothing
-  , Virtual bool_ {- OGRBoolean -} "Touches"    [ cppclass oGRGeometry "g"] Nothing
-  , Virtual bool_ {- OGRBoolean -} "Crosses"    [ cppclass oGRGeometry "g"] Nothing
-  , Virtual bool_ {- OGRBoolean -} "Within"     [ cppclass oGRGeometry "g"] Nothing
-  , Virtual bool_ {- OGRBoolean -} "Contains"   [ cppclass oGRGeometry "g"] Nothing
-  , Virtual bool_ {- OGRBoolean -} "Overlaps"   [ cppclass oGRGeometry "g"] Nothing
+  , Virtual bool_ {- OGRBoolean -}  "Intersects" [ cppclass oGRGeometry "g" ] Nothing
+  , Virtual bool_ {- OGRBoolean -}  "Equals"     [ cppclass oGRGeometry "g" ] Nothing
+  , Virtual bool_ {- OGRBoolean -}  "Disjoint"   [ cppclass oGRGeometry "g" ] Nothing
+  , Virtual bool_ {- OGRBoolean -}  "Touches"    [ cppclass oGRGeometry "g" ] Nothing
+  , Virtual bool_ {- OGRBoolean -}  "Crosses"    [ cppclass oGRGeometry "g" ] Nothing
+  , Virtual bool_ {- OGRBoolean -}  "Within"     [ cppclass oGRGeometry "g" ] Nothing
+  , Virtual bool_ {- OGRBoolean -}  "Contains"   [ cppclass oGRGeometry "g" ] Nothing
+  , Virtual bool_ {- OGRBoolean -}  "Overlaps"   [ cppclass oGRGeometry "g" ] Nothing
+  , Virtual (cppclass_ oGRGeometry) "Boundary"      [] Nothing
+  , Virtual double_                 "Distance"      [ cppclass oGRGeometry "poOtherGeom" ] Nothing
+  , Virtual (cppclass_ oGRGeometry) "ConvexHull"    [] Nothing
+  , Virtual (cppclass_ oGRGeometry) "Buffer"        [ double "dfDist", int "nQuadSegs" {- default = 30 -} ] Nothing
+  , Virtual (cppclass_ oGRGeometry) "Intersection"  [ cppclass oGRGeometry "poOtherGeom" ] Nothing
+  , Virtual (cppclass_ oGRGeometry) "Union"         [ cppclass oGRGeometry "poOtherGeom" ] Nothing
+  , Virtual (cppclass_ oGRGeometry) "UnionCascaded" [] Nothing
+  , Virtual (cppclass_ oGRGeometry) "Difference"    [ cppclass oGRGeometry "poOtherGeom" ] Nothing
+  , Virtual (cppclass_ oGRGeometry) "SymDifference" [ cppclass oGRGeometry "poOtherGeom" ] Nothing
+  , Virtual int_ {- OGRErr -} "Centroid" [ cppclass oGRPoint "poPoint" ] Nothing
+  , Virtual (cppclass_ oGRGeometry) "Simplify"  [ double "dTolerance" ] Nothing
+  , NonVirtual (cppclass_ oGRGeometry) "SimplifyPreserveTopology" [ double "dTolerance" ] Nothing
+  , Virtual (cppclass_ oGRGeometry) "DelaunayTriangulation" [ double "dfTolerance", int "bOnlyEdges" ] Nothing
+  , Virtual (cppclass_ oGRGeometry) "Polygonize" [] Nothing
+  , Virtual double_ "Distance3D" [ cppclass oGRGeometry "poOtherGeom" ] Nothing
   , NonVirtual (cppclass_ oGRPolygon) "toPolygon" [] Nothing
   , NonVirtual (cppclass_ oGRMultiPolygon) "toMultiPolygon" [] Nothing
   ]
