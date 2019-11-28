@@ -21,7 +21,9 @@ import FFICXX.Generate.Config         ( FFICXXConfig(..)
                                       , SimpleBuilderConfig(..)
                                       )
 import FFICXX.Generate.Type.Cabal     ( BuildType(..), Cabal(..), CabalName(..) )
-import FFICXX.Generate.Type.Config    ( ModuleUnit(..), ModuleUnitMap(..), ModuleUnitImports(..) )
+import FFICXX.Generate.Type.Config    ( ModuleUnit(..), ModuleUnitMap(..), ModuleUnitImports(..)
+                                      , modImports
+                                      )
 import FFICXX.Generate.Type.Class     ( Arg(..)
                                       , Class(..)
                                       , CTypes(CTDouble)
@@ -43,7 +45,7 @@ import FFICXX.Runtime.CodeGen.C       ( Namespace(..), HeaderName(..) )
 stdcxx_cabal :: Cabal
 stdcxx_cabal = Cabal {
     cabal_pkgname            = CabalName "stdcxx"
-  , cabal_version            = "0.5"
+  , cabal_version            = "0.6"
   , cabal_cheaderprefix      = "STD"
   , cabal_moduleprefix       = "STD"
   , cabal_additional_c_incs  = []
@@ -74,20 +76,6 @@ deletable =
 -----------------
 -- start hgdal --
 -----------------
-
-modImports ::
-     String
-  -> [String]
-  -> [HeaderName]
-  -> (ModuleUnit,ModuleUnitImports)
-modImports n ns hs =
-  ( MU_Class n
-  , ModuleUnitImports {
-      muimports_namespaces = map NS ns
-    , muimports_headers    = hs
-    }
-  )
-
 
 cabal = Cabal {
     cabal_pkgname            = CabalName "hgdal"
