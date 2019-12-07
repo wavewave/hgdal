@@ -35,7 +35,6 @@ import FFICXX.Generate.Type.Class     ( Arg(..)
 import FFICXX.Generate.Type.Config    ( ModuleUnit(..)
                                       , ModuleUnitImports(..)
                                       )
-import FFICXX.Runtime.CodeGen.C       ( Namespace(..), HeaderName(..) )
 
 
 ------------------------
@@ -105,6 +104,7 @@ gdalclass n ps fs =
     , class_funcs      = fs
     , class_vars       = []
     , class_tmpl_funcs = []
+    , class_has_proxy  = False
     }
 
 gDALMajorObject :: Class
@@ -147,6 +147,7 @@ oGREnvelope =
       , Variable (Arg double_ "MaxY")
       ]
     , class_tmpl_funcs = []
+    , class_has_proxy  = False
     }
 
 oGRFeature :: Class
@@ -334,7 +335,7 @@ headers =
   [ ( MU_TopLevel
     , ModuleUnitImports {
         muimports_namespaces = [ ]
-      , muimports_headers    = [ HdrName "gdal.h" ]
+      , muimports_headers    = [ "gdal.h" ]
       }
     )
   , modImports "GDALMajorObject" [] ["gdal_priv.h"]
