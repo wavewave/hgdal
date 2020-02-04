@@ -29,7 +29,7 @@ import FFICXX.Generate.Type.Class     ( Arg(..)
                                       , CTypes(CTDouble)
                                       , Function(..)
                                       , ProtectedMethod(..)
-                                      , TopLevelFunction(..)
+                                      , TopLevel(..)
                                       , Variable(..)
                                       )
 import FFICXX.Generate.Type.Config    ( ModuleUnit(..)
@@ -322,7 +322,7 @@ classes =
   , oGRSurface
   ]
 
-toplevelfunctions :: [TopLevelFunction]
+toplevelfunctions :: [TopLevel]
 toplevelfunctions =
   [ TopLevelFunction void_ "GDALAllRegister" [] Nothing
   , TopLevelFunction (cppclass_ gDALDataset) "GDALOpenEx"
