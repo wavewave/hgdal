@@ -11,7 +11,7 @@ let
     };
   };
 
-  stdcxxNix = import (fficxxSrc + "/stdcxx-gen/default.nix") {
+  stdcxxSrc = import (fficxxSrc + "/stdcxx-gen/gen.nix") {
     inherit stdenv;
     haskellPackages = newHaskellPackages0;
   };
@@ -20,7 +20,7 @@ let
     overrides = self: super: {
       "fficxx-runtime" = self.callCabal2nix "fficxx-runtime" (fficxxSrc + "/fficxx-runtime") {};
       "fficxx"         = self.callCabal2nix "fficxx"         (fficxxSrc + "/fficxx")         {};
-      "stdcxx"         = self.callPackage stdcxxNix {};
+      "stdcxx"         = self.callCabal2nix stdcxxSrc        stdcxxSrc                       {};
     };
   };
 
