@@ -29,6 +29,7 @@ import FFICXX.Generate.Type.Class     ( Arg(..)
                                       , CTypes(CTDouble)
                                       , Function(..)
                                       , ProtectedMethod(..)
+                                      , TLOrdinary (..)
                                       , TopLevel(..)
                                       , Variable(..)
                                       )
@@ -324,9 +325,13 @@ classes =
 
 toplevelfunctions :: [TopLevel]
 toplevelfunctions =
-  [ TopLevelFunction void_ "GDALAllRegister" [] Nothing
-  , TopLevelFunction (cppclass_ gDALDataset) "GDALOpenEx"
-    [ cstring "pszFilename", uint "nOpenFlags", charpp "papszAllowedDrivers", charpp "papszOpenOptions", charpp "papszSiblingFiles"] Nothing
+  [ TLOrdinary (TopLevelFunction void_ "GDALAllRegister" [] Nothing)
+  , TLOrdinary $
+      TopLevelFunction
+        (cppclass_ gDALDataset)
+        "GDALOpenEx"
+        [ cstring "pszFilename", uint "nOpenFlags", charpp "papszAllowedDrivers", charpp "papszOpenOptions", charpp "papszSiblingFiles"]
+        Nothing
   ]
 
 templates = []
