@@ -1,54 +1,61 @@
 {
   description = "hgdal";
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-22.05";
+    nixpkgs.url = "github:NixOS/nixpkgs/master";
     flake-utils.url = "github:numtide/flake-utils";
     fficxx = {
       url = "github:wavewave/fficxx/master";
       inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
     };
   };
   outputs = { self, nixpkgs, flake-utils, fficxx }:
     flake-utils.lib.eachDefaultSystem (system:
       let
-        pkgs = import nixpkgs {
-          overlays = [ fficxx.overlay.${system} ];
-          inherit system;
-        };
+        pkgs = import nixpkgs { inherit system; };
 
-        finalHaskellOverlay = self: super:
-          (import ./default.nix { inherit pkgs; } self super);
+        haskellOverlay = final: hself: hsuper:
+          (import ./default.nix { pkgs = final; } hself hsuper);
 
-        newHaskellPackages = pkgs.haskellPackages.extend finalHaskellOverlay;
+        hpkgsFor = compiler:
+          pkgs.haskell.packages.${compiler}.extend (hself: hsuper:
+            (fficxx.haskellOverlay.${system} pkgs hself hsuper
+              // haskellOverlay pkgs hself hsuper));
 
-      in {
-        packages = { inherit (newHaskellPackages) hgdal; };
-
-        # see these issues and discussions:
-        # - https://github.com/NixOS/nixpkgs/issues/16394
-        # - https://github.com/NixOS/nixpkgs/issues/25887
-        # - https://github.com/NixOS/nixpkgs/issues/26561
-        # - https://discourse.nixos.org/t/nix-haskell-development-2020/6170
-        overlay = final: prev: {
-          haskellPackages = prev.haskellPackages.override (old: {
-            overrides = final.lib.composeExtensions (old.overrides or (_: _: { }))
-              finalHaskellOverlay;
-          });
-        };
-
-        devShell = with pkgs;
+        # TODO: use haskell.packages.(ghc).shellFor
+        mkShellFor = compiler:
           let
-            hsenv = haskellPackages.ghcWithPackages (p: [
-              p.cabal-install
+            hsenv = (hpkgsFor compiler).ghcWithPackages (p: [
               p.fficxx
               p.fficxx-runtime
               p.stdcxx
               p.monad-loops
+              p.optparse-applicative
+              p.dotgen
             ]);
-          in mkShell {
-            buildInputs = [ hsenv gdal pkgconfig ];
+          in pkgs.mkShell {
+            buildInputs = [
+              hsenv
+              pkgs.cabal-install
+              pkgs.gdal
+              pkgs.pkgconfig
+              pkgs.nixfmt
+              pkgs.ormolu
+              pkgs.graphviz
+            ];
             shellHook = "";
           };
-      }
-  );
+
+        supportedCompilers = [ "ghc902" "ghc924" "ghc942" ];
+
+      in {
+        packages =
+          pkgs.lib.genAttrs supportedCompilers (compiler: hpkgsFor compiler);
+
+        inherit haskellOverlay;
+
+        devShells =
+          pkgs.lib.genAttrs supportedCompilers (compiler: mkShellFor compiler);
+
+      });
 }

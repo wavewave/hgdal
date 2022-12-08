@@ -1,14 +1,14 @@
 { pkgs }:
 
+hself: hsuper:
+
 let
 
-  hgdal-src = pkgs.callPackage ./gen.nix { };
+  hgdal-src = (pkgs.callPackage ./gen.nix { }) hself;
 
-in self: super:
-
-{
+in {
   "hgdal" =
-    pkgs.haskell.lib.overrideCabal (self.callCabal2nix "hgdal" hgdal-src { }) {
+    pkgs.haskell.lib.overrideCabal (hself.callCabal2nix "hgdal" hgdal-src { }) {
       librarySystemDepends = [ pkgs.gdal ];
     };
 }

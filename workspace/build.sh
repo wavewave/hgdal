@@ -1,4 +1,8 @@
 rm -rf dist-newstyle
-runhaskell ../Gen.hs
-cabal new-build hgdal
-cabal new-exec -- ghc example.hs  -package monad-loops  -lstdc++
+cabal build fficxx
+cabal exec runhaskell ../../fficxx/stdcxx-gen/Gen.hs
+cabal build stdcxx
+cabal exec -- ghc ../Gen.hs -package optparse-applicative
+../Gen gen
+cabal build hgdal
+cabal exec -- ghc example.hs  -package monad-loops  -lstdc++
