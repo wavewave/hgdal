@@ -1,4 +1,2 @@
 optional-packages:
-  ../../fficxx/fficxx
-  stdcxx
   hgdal
