@@ -66,7 +66,7 @@ stdcxx_cabal :: Cabal
 stdcxx_cabal =
   Cabal
     { cabal_pkgname = CabalName "stdcxx",
-      cabal_version = "0.6",
+      cabal_version = "0.7.0.0",
       cabal_cheaderprefix = "STD",
       cabal_moduleprefix = "STD",
       cabal_additional_c_incs = [],
@@ -101,7 +101,7 @@ deletable =
 cabal =
   Cabal
     { cabal_pkgname = CabalName "hgdal",
-      cabal_version = "0.1.0.0",
+      cabal_version = "1.0.0.0",
       cabal_cheaderprefix = "HGDAL",
       cabal_moduleprefix = "GDAL",
       cabal_additional_c_incs = [],
