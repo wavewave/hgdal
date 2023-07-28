@@ -3,8 +3,13 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/master";
     flake-utils.url = "github:numtide/flake-utils";
+    fficxx = {
+      url = "github:wavewave/fficxx/master";
+      inputs.nixpkgs.follows = "nixpkgs";
+      inputs.flake-utils.follows = "flake-utils";
+    };
   };
-  outputs = { self, nixpkgs, flake-utils }:
+  outputs = { self, nixpkgs, flake-utils, fficxx }:
     flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = import nixpkgs { inherit system; };
@@ -12,19 +17,21 @@
         haskellOverlay = final: hself: hsuper:
           (import ./default.nix { pkgs = final; } hself hsuper);
 
-        fficxx-version = "0.7.0.0";
+        #fficxx-version = "0.7.0.1";
 
         hpkgsFor = compiler:
           pkgs.haskell.packages.${compiler}.extend (hself: hsuper:
-            {
-              "fficxx" = hself.callHackage "fficxx" fficxx-version { };
-              "fficxx-runtime" =
-                hself.callHackage "fficxx-runtime" fficxx-version { };
-              "stdcxx" = hself.callHackage "stdcxx" fficxx-version { };
-              "template" = pkgs.haskell.lib.doJailbreak hsuper.template;
-              "ormolu" = pkgs.haskell.lib.overrideCabal hsuper.ormolu
-                (drv: { enableSeparateBinOutput = false; });
-            } // haskellOverlay pkgs hself hsuper);
+            (fficxx.haskellOverlay.${system} pkgs hself hsuper //
+              # temporarily commented out until the hackage is updated.
+              {
+                #"fficxx" = hself.callHackage "fficxx" fficxx-version { };
+                #"fficxx-runtime" =
+                #  hself.callHackage "fficxx-runtime" fficxx-version { };
+                #"stdcxx" = hself.callHackage "stdcxx" fficxx-version { };
+                #"template" = pkgs.haskell.lib.doJailbreak hsuper.template;
+                "ormolu" = pkgs.haskell.lib.overrideCabal hsuper.ormolu
+                  (drv: { enableSeparateBinOutput = false; });
+              } // haskellOverlay pkgs hself hsuper));
 
         # TODO: use haskell.packages.(ghc).shellFor
         mkShellFor = compiler:
@@ -51,7 +58,9 @@
               # this is due to https://github.com/NixOS/nixpkgs/issues/140774
               (hpkgsFor "ghc924").ormolu
             ];
-            shellHook = "";
+            shellHook = ''
+              export PS1="\n[hgdal:\w]$ \0"
+            '';
           };
 
         supportedCompilers = [ "ghc902" "ghc924" "ghc942" ];
